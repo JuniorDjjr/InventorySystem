@@ -1207,8 +1207,10 @@ SCRIPT_END
             f = INVENTORY_WINDOW_ITEM_SIZE
             IF CLEO_CALL IsCursorInsideBox 0 (x y f f 1)
                 IF IS_KEY_PRESSED VK_LBUTTON
+                OR IS_KEY_PRESSED VK_RBUTTON
                     DRAW_TEXTURE_PLUS 0 DRAW_EVENT_AFTER_DRAWING x y (f f) 0.0 0.0 TRUE 0 0 (60 60 60 160)
                     IF IS_KEY_JUST_PRESSED VK_LBUTTON
+                    OR IS_KEY_JUST_PRESSED VK_RBUTTON
                         CLEO_CALL InventorySpaceClick 0 (hChar pDragStoredItem pStoredItem lItemsScripts)()
                     ENDIF
                 ELSE
@@ -1230,7 +1232,7 @@ SCRIPT_END
 
 {
     LVAR_INT hChar pDragStoredItem pClickStoredItem lItemsScripts //In
-    LVAR_INT i pStoredItem bDrag iRestCount
+    LVAR_INT i pStoredItem bDrag iRestCount bIsOdd iDivRest
 
     InventorySpaceClick:
 
@@ -1243,8 +1245,20 @@ SCRIPT_END
         READ_STRUCT_PARAM pClickStoredItem STORED_ITEM_ID (i)
         IF i > -1 // has item
             // start drag
-            CLEO_CALL CopyStoredItemFromTo 0 (pClickStoredItem pDragStoredItem)()
-            CLEO_CALL ClearStoredItem 0 (hChar pClickStoredItem lItemsScripts)()
+            IF IS_KEY_JUST_PRESSED VK_RBUTTON //half
+                READ_STRUCT_PARAM pClickStoredItem STORED_COUNT i
+                IF i > 1
+                    CLEO_CALL CopyStoredItemFromTo 0 (pClickStoredItem pDragStoredItem)()
+                    MOD i 2 (iDivRest)
+                    i /= 2
+                    WRITE_STRUCT_PARAM pDragStoredItem STORED_COUNT i
+                    i += iDivRest
+                    WRITE_STRUCT_PARAM pClickStoredItem STORED_COUNT i
+                ENDIF
+            ELSE
+                CLEO_CALL CopyStoredItemFromTo 0 (pClickStoredItem pDragStoredItem)()
+                CLEO_CALL ClearStoredItem 0 (hChar pClickStoredItem lItemsScripts)()
+            ENDIF
         ENDIF
     ENDIF
 
@@ -1337,6 +1351,12 @@ SCRIPT_END
             READ_STRUCT_PARAM pStoredItemTo STORED_COUNT iStoredCountTo
             iStoredCountTo += iStoredCountFrom
             iRestCount = iStoredCountTo - iMaxStack
+            IF iRestCount < 0
+                iRestCount = 0
+            ENDIF
+            WRITE_STRUCT_PARAM pStoredItemFrom STORED_COUNT iRestCount
+            iStoredCountTo -= iRestCount
+            WRITE_STRUCT_PARAM pStoredItemTo STORED_COUNT iStoredCountTo
         ENDIF
     ELSE
         IF iStoredItemIDTo > -1 //has item
@@ -1356,7 +1376,7 @@ SCRIPT_END
         CLEO_RETURN 0 (2)
     ELSE
         //swap drag item
-        CLEO_CALL SwapStoredItemFromTo 0 (pStoredItemFrom pStoredItemTo)
+        //CLEO_CALL SwapStoredItemFromTo 0 (pStoredItemFrom pStoredItemTo)
         CLEO_RETURN 0 (6)
     ENDIF
     CLEO_RETURN 0 (4)
