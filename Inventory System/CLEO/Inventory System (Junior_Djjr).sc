@@ -8,7 +8,7 @@ SCRIPT_START
     LVAR_INT iLastSelectedSlot iSelectedItemID iLastSelectedItemID bSelectingUse bLastSelectingUse 
     LVAR_FLOAT f x y z x2 y2 xSel ySel
 
-    CONST_INT MOD_VERSION 1
+    CONST_INT MOD_VERSION 2
 
     // --- START OF constants header that you can copy and use for your item scripts
 
@@ -218,6 +218,7 @@ SCRIPT_START
         GET_PED_POINTER scplayer (i)
         CALL_METHOD_RETURN 0x5408B0 0xB73458 1 0 (i)(i)
         IF i = TRUE
+        AND NOT IS_CHAR_IN_ANY_CAR scplayer
             IF bInventoryOpen = FALSE
                 GOSUB OpenInventory
             ENDIF

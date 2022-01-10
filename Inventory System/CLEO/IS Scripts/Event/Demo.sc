@@ -37,6 +37,10 @@ SCRIPT_START
     // -----------------------------
     // Your code called for each event ID
 
+    IF NOT DOES_CHAR_EXIST hChar
+        TERMINATE_THIS_CUSTOM_SCRIPT
+    ENDIF
+
     SWITCH iEventID
         CASE EVENT_ITEM_AFTER_GIVE
             PRINT_STRING_NOW "EVENT_ITEM_AFTER_GIVE" 1000

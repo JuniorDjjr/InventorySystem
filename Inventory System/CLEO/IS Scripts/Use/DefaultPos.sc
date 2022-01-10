@@ -43,6 +43,11 @@ SCRIPT_START
     // -----------------------------
     // Your code called when using the item
 
+    IF NOT DOES_CHAR_EXIST hChar
+        GOSUB StopUsing
+        TERMINATE_THIS_CUSTOM_SCRIPT
+    ENDIF
+
     fGroundHeight /= 100.0 // convert from centimeters
 
     // Get drop position, avoiding loosing item

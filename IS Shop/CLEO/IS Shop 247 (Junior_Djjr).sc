@@ -146,6 +146,9 @@ SCRIPT_START
                                     IF STREAM_CUSTOM_SCRIPT "Inventory System (Junior_Djjr).cs" i scplayer j
                                         REPORT_MISSION_AUDIO_EVENT_AT_POSITION 0.0 0.0 0.0 SOUND_SHOP_BUY
                                         CHANGE_PLAYER_MONEY 0 CHANGE_MONEY_REMOVE timera //NOTE: this will run even if the item isn't installed
+                                        f =# timera
+                                        INCREMENT_FLOAT_STAT 20 f //STAT_FOOD_BUDGET
+                                        INCREMENT_FLOAT_STAT 62 f //STAT_TOTAL_SHOPPING_BUDGET
                                     ELSE
                                         PRINT_STRING_NOW "~r~Error: Can't find 'Inventory System (Junior_Djjr).cs'" 5000
                                     ENDIF
