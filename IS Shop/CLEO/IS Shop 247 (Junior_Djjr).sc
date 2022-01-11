@@ -80,6 +80,11 @@ SCRIPT_START
                 GOSUB RunShop
             ENDIF
 
+            shopX = -20.531492 
+            shopY = -175.396942
+            IF LOCATE_CHAR_ANY_MEANS_3D scplayer shopX shopY 1000.0 50.0 50.0 30.0 FALSE
+                GOSUB RunShop
+            ENDIF
         ENDIF
 
     ENDWHILE
