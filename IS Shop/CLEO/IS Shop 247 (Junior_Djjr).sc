@@ -2,7 +2,7 @@
 // You need: https://forum.mixmods.com.br/f141-gta3script-cleo/t5206-como-criar-scripts-com-cleo
 SCRIPT_START
 {
-    LVAR_INT scplayer i j lBuyList pItemName lShopListNames lShopListPrices lShopListModels lShopListX lShopListY lShopListZ iTotalShopItems iClosestShopItemID pClosestEntity
+    LVAR_INT scplayer i j k l lBuyList pItemName lShopListNames lShopListPrices lShopListModels lShopListX lShopListY lShopListZ iTotalShopItems iClosestShopItemID pClosestEntity
     LVAR_FLOAT x y z fClosestDistance screenX screenY sizeX sizeY charX charY charZ f shopX shopY
     LVAR_TEXT_LABEL tText
 
@@ -26,6 +26,7 @@ SCRIPT_START
     //-----------------
 
     CONST_FLOAT MIN_DISTANCE_TO_SHOW 7.0
+    CONST_FLOAT MIN_DISTANCE_TO_PROCESS 12.0
     CONST_FLOAT MIN_DISTANCE_TO_PICK 1.0
     CONST_FLOAT SHOP_ITEM_LETTER_SIZE_MULT 0.3
 
@@ -175,62 +176,70 @@ SCRIPT_START
     RETURN
 
     OnBuildingProcess:
-    READ_STRUCT_OFFSET j 0x22 2 (timerb) // entity model ID
+    READ_STRUCT_OFFSET j 0x22 2 (k) // entity model ID
 
     // limit ids, just to make it faster
-    IF timerb > 1900
-    AND timerb < 3000
+    IF k > 1900
+    AND k < 3000
 
-        i = 0
-        GET_LIST_SIZE lShopListNames (iTotalShopItems)
-        WHILE i < iTotalShopItems
-            GET_LIST_VALUE_BY_INDEX lShopListModels i (timera)
-            IF timera = timerb // entity model is correct
+        READ_STRUCT_OFFSET j 0x14 4 (timera) //pMatrix
+        IF timera > 0x0
+        
+            GET_OFFSET_FROM_MATRIX_IN_WORLD_COORDS timera 0.0 0.0 0.0 (x y z)
 
-                READ_STRUCT_OFFSET j 0x14 4 (timerb) //pMatrix
-                IF timerb > 0x0
-                    GET_LIST_VALUE_BY_INDEX lShopListX i (x)
-                    GET_LIST_VALUE_BY_INDEX lShopListY i (y)
-                    GET_LIST_VALUE_BY_INDEX lShopListZ i (z)
-                    GET_OFFSET_FROM_MATRIX_IN_WORLD_COORDS timerb x y z (x y z)
-
-                    GET_DISTANCE_BETWEEN_COORDS_3D x y z charX charY charZ (f)
-                    IF f < MIN_DISTANCE_TO_SHOW
-                        WRITE_MEMORY 0xB7CD68 4 j FALSE
-                        IF IS_LINE_OF_SIGHT_CLEAR x y z charX charY charZ 1 0 0 0 0
-
-                            IF f < fClosestDistance
-                                fClosestDistance = f
-                                iClosestShopItemID = i
-                                pClosestEntity = j
-                            ENDIF
-
-                            CONVERT_3D_TO_SCREEN_2D x y z TRUE FALSE (screenX screenY sizeX sizeY)
-                            sizeX *= SHOP_ITEM_LETTER_SIZE_MULT
-                            sizeY *= SHOP_ITEM_LETTER_SIZE_MULT
-                            GET_LIST_STRING_VALUE_BY_INDEX lShopListNames i tText
-                            
-                            GET_LABEL_POINTER Buffer (timerb)
-                            GET_TEXT_LABEL_STRING $tText (timerb)
-                            DRAW_STRING_EXT $timerb DRAW_EVENT_BEFORE_DRAWING screenX screenY sizeX sizeY TRUE FONT_SUBTITLES TRUE ALIGN_CENTER 640.0 FALSE (255 255 255 255) 1 0 (0 0 0 255) FALSE (0 0 0 0)
-
-                            f = z + 0.1
-                            CONVERT_3D_TO_SCREEN_2D x y f TRUE FALSE (screenX screenY sizeX sizeY)
-                            sizeX *= SHOP_ITEM_LETTER_SIZE_MULT
-                            sizeY *= SHOP_ITEM_LETTER_SIZE_MULT
-                            GET_LIST_VALUE_BY_INDEX lShopListPrices i (j)
-                            GET_LABEL_POINTER Buffer2 (timerb)
-                            STRING_FORMAT timerb "$%i" j
-                            DRAW_STRING_EXT $timerb DRAW_EVENT_BEFORE_DRAWING screenX screenY sizeX sizeY TRUE FONT_SUBTITLES TRUE ALIGN_CENTER 640.0 FALSE (100 255 0 255) 1 0 (0 0 0 255) FALSE (0 0 0 0)
-                        ENDIF
-                        WRITE_MEMORY 0xB7CD68 4 0 FALSE
-                    ENDIF
-
-                ENDIF
+            GET_DISTANCE_BETWEEN_COORDS_2D x y charX charY (f)
+            IF f < MIN_DISTANCE_TO_PROCESS
                 
+                i = 0
+                GET_LIST_SIZE lShopListNames (iTotalShopItems)
+                WHILE i < iTotalShopItems
+                    GET_LIST_VALUE_BY_INDEX lShopListModels i (timerb)
+
+                    IF timerb = k // entity model is correct
+
+                        GET_LIST_VALUE_BY_INDEX lShopListX i (x)
+                        GET_LIST_VALUE_BY_INDEX lShopListY i (y)
+                        GET_LIST_VALUE_BY_INDEX lShopListZ i (z)
+                        READ_STRUCT_OFFSET j 0x14 4 (timera) //pMatrix
+                        GET_OFFSET_FROM_MATRIX_IN_WORLD_COORDS timera x y z (x y z)
+
+                        GET_DISTANCE_BETWEEN_COORDS_2D x y charX charY (f)
+                        IF f < MIN_DISTANCE_TO_SHOW
+                            WRITE_MEMORY 0xB7CD68 4 j FALSE
+                            IF IS_LINE_OF_SIGHT_CLEAR x y z charX charY charZ 1 0 0 0 0
+
+                                IF f < fClosestDistance
+                                    fClosestDistance = f
+                                    iClosestShopItemID = i
+                                    pClosestEntity = j
+                                ENDIF
+
+                                CONVERT_3D_TO_SCREEN_2D x y z TRUE FALSE (screenX screenY sizeX sizeY)
+                                sizeX *= SHOP_ITEM_LETTER_SIZE_MULT
+                                sizeY *= SHOP_ITEM_LETTER_SIZE_MULT
+                                GET_LIST_STRING_VALUE_BY_INDEX lShopListNames i tText
+                                
+                                GET_LABEL_POINTER Buffer (timera)
+                                GET_TEXT_LABEL_STRING $tText (timera)
+                                DRAW_STRING_EXT $timera DRAW_EVENT_BEFORE_DRAWING screenX screenY sizeX sizeY TRUE FONT_SUBTITLES TRUE ALIGN_CENTER 640.0 FALSE (255 255 255 255) 1 0 (0 0 0 255) FALSE (0 0 0 0)
+
+                                f = z + 0.1
+                                CONVERT_3D_TO_SCREEN_2D x y f TRUE FALSE (screenX screenY sizeX sizeY)
+                                sizeX *= SHOP_ITEM_LETTER_SIZE_MULT
+                                sizeY *= SHOP_ITEM_LETTER_SIZE_MULT
+                                GET_LIST_VALUE_BY_INDEX lShopListPrices i (timerb)
+                                GET_LABEL_POINTER Buffer2 (timera)
+                                STRING_FORMAT timera "$%i" timerb
+                                DRAW_STRING_EXT $timera DRAW_EVENT_BEFORE_DRAWING screenX screenY sizeX sizeY TRUE FONT_SUBTITLES TRUE ALIGN_CENTER 640.0 FALSE (100 255 0 255) 1 0 (0 0 0 255) FALSE (0 0 0 0)
+                            ENDIF
+                            WRITE_MEMORY 0xB7CD68 4 0 FALSE
+                        ENDIF
+                        
+                    ENDIF
+                    ++i
+                ENDWHILE
             ENDIF
-            ++i
-        ENDWHILE
+        ENDIF
 
     ENDIF
 

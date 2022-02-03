@@ -228,7 +228,9 @@ SCRIPT_START
             ENDIF
         ENDIF
 
-        GOSUB CycleSlots
+        IF NOT IS_CHAR_SITTING_IN_ANY_CAR scplayer
+            GOSUB CycleSlots
+        ENDIF
 
         IF bInventoryOpen = TRUE
             CLEO_CALL ProcessInventory 0 (1 pInventorySpaces lItemsNames pDragStoredItem iSelectedSlot scplayer lItemsScripts)
@@ -241,16 +243,20 @@ SCRIPT_START
             ENDIF
         ENDIF
 
-        GET_CURRENT_CHAR_WEAPON scplayer (i)
-        IF i > 1
-            IF pSelectedStoredItem > 0x0
-                READ_STRUCT_PARAM pSelectedStoredItem STORED_ITEM_DATA i
-                CLEO_CALL CanHoldItem 0 (scplayer i)(j)
-            ELSE
-                j = FALSE
-            ENDIF
+        // Is char can hold item
+        j = TRUE
+        IF IS_CHAR_IN_ANY_CAR scplayer
+            j = FALSE
         ELSE
-            j = TRUE
+            GET_CURRENT_CHAR_WEAPON scplayer (i)
+            IF i > 1
+                IF pSelectedStoredItem > 0x0
+                    READ_STRUCT_PARAM pSelectedStoredItem STORED_ITEM_DATA i
+                    CLEO_CALL CanHoldItem 0 (scplayer i)(j)
+                ELSE
+                    j = FALSE
+                ENDIF
+            ENDIF
         ENDIF
 
         // Update selected item and use
@@ -268,10 +274,16 @@ SCRIPT_START
                 IF bInventoryOpen = FALSE
                     IF iSelectedItemID > -1
                         IF IS_AIM_BUTTON_PRESSED PAD1
-                        AND NOT IS_CHAR_DOING_ANY_IMPORTANT_TASK scplayer INCLUDE_ANIMS_NONE
 
-                            IF CLEO_CALL IsAnyUseForItem 0 (iSelectedItemID lItemsScripts)()
-                                GOSUB ProcessSelectUse
+                            IF NOT IS_CHAR_DOING_ANY_IMPORTANT_TASK scplayer INCLUDE_ANIMS_NONE
+                            AND NOT IS_CHAR_IN_ANY_CAR scplayer
+                            AND NOT IS_ON_CUTSCENE
+                            AND NOT IS_ON_SCRIPTED_CUTSCENE
+
+                                IF CLEO_CALL IsAnyUseForItem 0 (iSelectedItemID lItemsScripts)()
+                                    GOSUB ProcessSelectUse
+                                ENDIF
+                                
                             ENDIF
                         ENDIF
                     ENDIF

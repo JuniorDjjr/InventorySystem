@@ -152,7 +152,7 @@ SCRIPT_START
             INCREMENT_INT_STAT 245 i //STAT_CALORIES
             GOSUB UnPatchHungry
             
-            // Set char health, overwriting STAT_CALORIES effect
+            // Set char health, overwriting STAT_CALORIES health effect
             IF NOT fHealth = -1.0
                 GET_CHAR_HEALTH hChar i
                 f =# iHealthBeforeEat
@@ -166,6 +166,20 @@ SCRIPT_START
             ENDIF
 
             // not used yet: fThirst fDrunkness
+            IF fDrunkness > 0.0
+                GET_PED_TYPE hChar i
+                IF i = 0 //only for player 1
+                    fDrunkness /= 5.5f
+                    GET_SCRIPT_STRUCT_NAMED ISDRUNK i
+                    IF NOT i = 0x0
+                        GET_THREAD_VAR i 0 (f)
+                        f += fDrunkness
+                        SET_THREAD_VAR i 0 f
+                    ELSE
+                        STREAM_CUSTOM_SCRIPT "IS Scripts\Effect\IS Drunk Effect.cs" fDrunkness
+                    ENDIF
+                ENDIF
+            ENDIF
 
             bConsumed = TRUE
             GOSUB HideObject
