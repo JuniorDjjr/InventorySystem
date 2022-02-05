@@ -142,8 +142,8 @@ SCRIPT_START
                             USE_TEXT_COMMANDS 0
 
                             IF IS_BUTTON_JUST_PRESSED PAD1 TRIANGLE
-                                GET_LIST_VALUE_BY_INDEX lShopListPrices iClosestShopItemID (timera)
-                                IF IS_SCORE_GREATER 0 timera
+                                GET_LIST_VALUE_BY_INDEX lShopListPrices iClosestShopItemID (k)
+                                IF IS_SCORE_GREATER 0 k
                                     GET_LIST_STRING_VALUE_BY_INDEX lShopListNames iClosestShopItemID tText
 
                                     GET_LABEL_POINTER BufferItemGive (j)
@@ -151,8 +151,8 @@ SCRIPT_START
                                     i = EXTERNAL_ACTION_GIVE_ITEM //char; item name pointer or ID
                                     IF STREAM_CUSTOM_SCRIPT "Inventory System (Junior_Djjr).cs" i scplayer j
                                         REPORT_MISSION_AUDIO_EVENT_AT_POSITION 0.0 0.0 0.0 SOUND_SHOP_BUY
-                                        CHANGE_PLAYER_MONEY 0 CHANGE_MONEY_REMOVE timera //NOTE: this will run even if the item isn't installed
-                                        f =# timera
+                                        CHANGE_PLAYER_MONEY 0 CHANGE_MONEY_REMOVE k //NOTE: this will run even if the item isn't installed
+                                        f =# k
                                         INCREMENT_FLOAT_STAT 20 f //STAT_FOOD_BUDGET
                                         INCREMENT_FLOAT_STAT 62 f //STAT_TOTAL_SHOPPING_BUDGET
                                     ELSE
