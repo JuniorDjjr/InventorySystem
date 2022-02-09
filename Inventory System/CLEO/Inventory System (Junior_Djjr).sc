@@ -222,6 +222,7 @@ SCRIPT_START
             IF bInventoryOpen = FALSE
                 GOSUB OpenInventory
             ENDIF
+            WRITE_MEMORY 0xBAB1DE 1 1 FALSE
         ELSE
             IF bInventoryOpen = TRUE
                 GOSUB CloseInventory
@@ -405,7 +406,7 @@ SCRIPT_START
     SET_PLAYER_CONTROL_PAD_MOVEMENT PAD1 OFF
     bInventoryOpen = TRUE
     timera = 99999
-    MAKE_NOP 0x5408B3 8
+    MAKE_NOP 0x5408B3 10
     CLEO_CALL CursorInit 0 (320.0 280.0)
     RETURN
 
@@ -416,7 +417,7 @@ SCRIPT_START
     bInventoryOpen = FALSE
     timera = 99999
     GET_LABEL_POINTER Original_5408B3_Bytes (i)
-    COPY_MEMORY i 0x5408B3 8
+    COPY_MEMORY i 0x5408B3 10
     RETURN
 
     CycleSlots:
@@ -2317,5 +2318,5 @@ ENDDUMP
 
 Original_5408B3_Bytes:
 DUMP
-66 83 BF 0E 01 00 00 00
+66 83 BF 0E 01 00 00 00 75 0A
 ENDDUMP
