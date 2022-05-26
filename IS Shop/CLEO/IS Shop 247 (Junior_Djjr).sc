@@ -57,8 +57,8 @@ SCRIPT_START
         GET_AREA_VISIBLE (i)
         IF i > 0
 
-            shopX = -26.2593 
-            shopY = -81.3956 
+            shopX = -26.2593 -81.3956 1000.0
+            shopY = 
             IF LOCATE_CHAR_ANY_MEANS_3D scplayer shopX shopY 1000.0 40.0 40.0 30.0 FALSE
                 GOSUB RunShop
             ENDIF
